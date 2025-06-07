@@ -1,5 +1,5 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 
 # Set page title and icon
 st.set_page_config(page_title="Math Problem Solver", page_icon="📐")
@@ -8,7 +8,7 @@ st.title("📐 Universal Math Problem Solver")
 st.markdown("Type **any math or statistics question** below and get a detailed solution powered by GPT!")
 
 # Load API key securely from Streamlit secrets
-openai.api_key = st.secrets["openai_api_key"]
+client = OpenAI(api_key=st.secrets["openai_api_key"])
 
 # Input box for user's question
 question = st.text_area("🧠 Enter your math/statistics question here:")
@@ -20,8 +20,8 @@ if st.button("Solve"):
     else:
         with st.spinner("Solving your problem..."):
             try:
-                response = openai.ChatCompletion.create(
-                    model="gpt-4-turbo",
+                response = client.chat.completions.create(
+                    model="gpt-4-turbo",  # Or "gpt-3.5-turbo" if needed
                     messages=[
                         {
                             "role": "system",
@@ -35,7 +35,7 @@ if st.button("Solve"):
                     ],
                     temperature=0.3
                 )
-                answer = response['choices'][0]['message']['content']
+                answer = response.choices[0].message.content.strip()
                 st.markdown("### ✅ Solution:")
                 st.markdown(answer)
             except Exception as e:
